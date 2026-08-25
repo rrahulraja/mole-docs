@@ -255,6 +255,51 @@ docker run --rm -p 7880:7880 -p 7881:7881 -p 7882:7882/udp \
   TCP-only, so WebRTC **media (UDP) dies over it** — signalling connects but no
   video. Use LAN or a host with open UDP for real device testing.
 
+### 6a. Testing the Mole app against local LiveKit
+
+Nothing in the app is Cloud-specific — the backend returns whatever `LIVEKIT_URL`
+it's configured with. So testing self-hosted locally is just: point `.env` at the
+local server and run a real session.
+
+**Fastest loop — web, two browser windows (localhost media just works):**
+
+1. Start the LiveKit dev server (section 6) and `pnpm backend` + `pnpm web`.
+2. `backend/.env`: `LIVEKIT_URL=ws://localhost:7880`, `LIVEKIT_API_KEY=devkey`,
+   `LIVEKIT_API_SECRET=secret`. Restart the backend so it reloads `.env`.
+3. Log in as a **student** in one window and an **educator** in another (normal +
+   incognito). Book → educator accepts → student pays → both open the session.
+4. Each client hits `GET`-token on the backend, receives `ws://localhost:7880` +
+   a join token, and connects. Expect two video tiles; `docker logs` on the
+   livekit container shows `participant joined`.
+
+**Real WebRTC path — phone on the same wifi:**
+
+1. Find the host LAN IP (`hostname -I | awk '{print $1}'`), set
+   `LIVEKIT_URL=ws://<LAN-IP>:7880` and `--node-ip <LAN-IP>` (or
+   `use_external_ip` off + `rtc.node_ip`), restart backend.
+2. Point the mobile app's API base at the same host:
+   `EXPO_PUBLIC_API_URL=http://<LAN-IP>:3000` (token + media on one host).
+3. Open host firewall: TCP 7880/7881 + the UDP media range.
+4. Run a **dev build** (`npx expo run:android`) — LiveKit's native WebRTC module
+   is absent in Expo Go.
+5. Join from the phone + a laptop browser. Media flows over LAN UDP.
+
+**Verify recording locally (egress, section 7):**
+
+- Add the egress webhook to `livekit.yaml` so recording completion reaches the
+  backend from inside Docker:
+  ```yaml
+  webhook:
+    api_key: devkey
+    urls:
+      - http://host.docker.internal:3000/api/v1/webhooks/livekit
+  ```
+- Run a session a few seconds, end it (OTP exchange or the auto-complete cron).
+  `docker logs` on the egress container shows start/stop; on stop LiveKit POSTs
+  `egress_ended`, the backend finalizes the `SessionRecording` row and the MP4
+  lands in the S3 bucket. Rows stuck in `processing` ⇒ the webhook isn't reaching
+  the backend (check the URL host + that the backend is on 3000).
+
 ---
 
 ## 7. Recording (egress) — if you must self-host it
