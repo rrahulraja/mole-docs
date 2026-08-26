@@ -116,6 +116,37 @@ enum LedgerEntryType {
 duplicate webhook cannot double-post. `balanceAfter` gives O(1) audit and a
 running statement; `seq` makes gaps detectable.
 
+**Worked example — the ledger as a passbook.** Read the balance like a bank
+passbook: each line adds or subtracts what we owe the educator; the *type* says
+why, the *sign* says which way (`+` = we owe more, `−` = we owe less). Educator
+"Ravi", starting at ₹0:
+
+| Type | Sign | Plain meaning | Ravi | Balance |
+|------|------|---------------|------|---------|
+| `accrual` | **+** | earned money (finished a session) | +₹400 | ₹400 |
+| `penalty` | **−** | docked for breaking a rule (no-show/late cancel) | −₹100 | ₹300 |
+| `payout` | **−** | money we sent to his bank | −₹300 | ₹0 |
+| `payout_reversal` | **+** | a sent payout bounced back (bad/closed account) | +₹300 | ₹300 |
+| `penalty_reversal` | **+** | a penalty was wrong, given back | +₹100 | ₹400 |
+| `adjustment` | **±** | manual correction by an admin (dual-controlled) | ±₹5 | ₹405 |
+
+`accrual` = money accumulating that he earned. `reversal` = an **undo** — money
+moving the opposite way of what just happened. The balance is simply every line
+summed:
+
+```
++400  accrual
+−100  penalty
+−300  payout
++300  payout_reversal
+= ₹300 still owed to Ravi
+```
+
+We **never edit an old line.** A mistake is corrected by *adding* a new reversal/
+adjustment line, so the passbook stays a permanent, honest history — you can
+always see exactly how a balance became what it is. That is what makes payouts
+auditable and disputes winnable.
+
 `Educator.pendingPayout` becomes a **cached** copy of the latest `balanceAfter`
 (kept for fast reads/queries), reconciled against `SUM(amount)` nightly.
 
