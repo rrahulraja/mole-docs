@@ -304,7 +304,18 @@ local server and run a real session.
 
 ## 7. Recording (egress) — if you must self-host it
 
-Egress needs the server + **Redis** + the egress container. Sketch:
+Egress needs the server + **Redis** + the egress container.
+
+> **Local-disk recordings (dev).** The backend supports
+> `LIVEKIT_RECORDING_STORAGE=local`: egress writes the MP4 to
+> `LIVEKIT_RECORDING_DIR` (a Docker volume mapped onto the backend's
+> `UPLOAD_DIR`) instead of S3, and playback is served through the `/api/v1/files`
+> proxy — no S3 creds needed. Runnable stack + config live in the monorepo at
+> `docker/livekit/` (`docker compose -f docker/livekit/docker-compose.yml up -d`).
+> Dev only: the file proxy is unauthenticated, so the booking access-check is the
+> sole gate. Prod stays `LIVEKIT_RECORDING_STORAGE=s3`.
+
+S3-upload sketch (prod / non-local):
 
 ```yaml
 # docker-compose.yml (SFU + Redis + egress)
