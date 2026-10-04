@@ -266,7 +266,8 @@ later.
 **Configure / submit:** build an **AAB** via EAS (`eas build --profile production`), then `eas submit`
 or upload manually. First submission needs: privacy-policy URL, **Data safety** form (phone, location,
 camera/mic, KYC docs), content rating, **test login for the reviewer** (the app is OTP-gated).
-Full steps in `aws-deploy.md` → "Releasing the Android app".
+Full steps in `aws-deploy.md` → "Releasing the Android app"; new-account walkthrough in
+[`google-play-console-setup.md`](./google-play-console-setup.md).
 
 **Move to company:** ⚠️ developer-identity-bound. Transferring an app between Play accounts is a formal
 process — ideally create the Console account **as the company** from the start.

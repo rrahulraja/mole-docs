@@ -22,6 +22,8 @@ live under `docs/` and `backend/docs/` in the [main monorepo](https://github.com
 - [Local testing](deployment/local-testing.md)
 - [Integrations setup](deployment/integrations-setup.md)
 - [Integrations E2E](deployment/integrations-e2e.md)
+- [Google Play Console setup](deployment/google-play-console-setup.md) — step-by-step new account → production
+- [Google Play release plan](deployment/google-play-release-plan.md) — personal account → internal testing → org transfer; versioning + release notes
 
 ## Backend
 
@@ -37,6 +39,10 @@ live under `docs/` and `backend/docs/` in the [main monorepo](https://github.com
 ## Mobile
 
 - [Mobile OTA updates](mobile-ota-updates.md)
+
+## Releases
+
+- [Android v1.0.0](releases/android-v1.0.0.md) — release notes (draft)
 
 ## Test cases
 
