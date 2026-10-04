@@ -169,7 +169,7 @@ App content**. Every item below must be green.
 - [ ] App category: **Education**; contact email; website
 
 ### Step 5.2 — App content declarations
-- [ ] **Privacy policy URL** — public page, e.g. `https://<web-domain>/privacy`. Must name the
+- [ ] **Privacy policy URL**: `https://app.moleedtech.com/privacy-policy` (terms: `/terms-conditions`), served by the web app (monorepo #314). It must be a live page, not a PDF, and must name the
       developer and describe data collected.
 - [ ] **App access** — Mole is phone-OTP gated. Select *"All or some functionality is restricted"*
       and give reviewers a **test phone number + fixed OTP** (configure a test-number bypass in the

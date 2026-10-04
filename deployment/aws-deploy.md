@@ -147,7 +147,7 @@ eas submit --platform android --profile production --latest
 Google won't publish until these are filled:
 - App name, short + full description, **app icon (512×512)**, **feature graphic (1024×500)**, ≥2
   phone **screenshots**.
-- **Privacy Policy URL** (mandatory — host a page; the web app can serve `/privacy`).
+- **Privacy Policy URL** (mandatory, live page not a PDF): `https://app.moleedtech.com/privacy-policy` (web app, monorepo #313/#314).
 - **Data safety** form — declare what you collect (phone number, location, camera/mic, uploaded KYC
   docs). Be accurate; it's reviewed.
 - **Content rating** questionnaire.
