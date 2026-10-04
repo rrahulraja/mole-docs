@@ -72,7 +72,51 @@ MOLE_UPLOAD_KEY_PASSWORD=...
 Connect them to the build. `npx expo prebuild --clean` regenerates `android/`, so a hand edit to
 `build.gradle` gets wiped. Use a small **config plugin** (`mobile/plugins/withReleaseSigning.js`)
 that adds a `signingConfigs.release` block reading the `MOLE_UPLOAD_*` properties, and point
-`buildTypes.release.signingConfig` at it. *(To be added in the monorepo, tracked as its own issue.)*
+`buildTypes.release.signingConfig` at it. Done in monorepo PR #311 (issue #308): with the
+properties set, release builds use the upload key; without them they fall back to the debug key.
+
+### A3a. Giving another developer upload access
+
+Two separate things:
+- **Uploading to Play** needs a Play Console permission.
+- **Signing a build** needs the upload key.
+
+Give each person only what their job needs.
+
+**Option 1 (recommended): the developer uploads, one release manager signs.**
+The developer never gets the key.
+1. Play Console → **Users and permissions → Invite new users** → the developer's Google email.
+2. **App permissions** → `MoLe` → tick only **Release to testing tracks** (add *Release to
+   production* later, only for trusted release managers). Don't make them Admin.
+3. You (key holder) build and sign the AAB, then hand them the `.aab` file. They upload it and
+   write the release notes.
+
+**Option 2: the developer also builds and signs.**
+1. Do steps 1–2 above.
+2. Share the key **only through the team password manager** (1Password / Bitwarden shared vault):
+   attach `mole-upload.jks` and store the two passwords + alias in the same item.
+   **Never** send it over email, Slack/WhatsApp, Drive links, or git.
+3. Developer saves it outside any repo, e.g. `~/keys/mole-upload.jks` (`chmod 600`), and adds the
+   four `MOLE_UPLOAD_*` lines to **their own** `~/.gradle/gradle.properties`.
+4. Developer checks their setup: `./gradlew :app:signingReport` → release shows `Config: release`,
+   alias `mole-upload`. The SHA-256 must match Play Console → **App integrity → Upload key
+   certificate**.
+
+**Why sharing is survivable:** with **Play App Signing**, the upload key isn't the key users'
+devices trust. Google holds that one. A leaked or lost upload key can be replaced without
+affecting installs.
+
+**When someone leaves, or the key may have leaked:**
+1. Remove their Play Console access (Users and permissions).
+2. Generate a new keystore (A3 `keytool` command, new file name).
+3. Export its certificate:
+   `keytool -export -rfc -keystore mole-upload-v2.jks -alias mole-upload -file upload_cert.pem`
+4. Play Console → **App integrity → App signing → Request upload key reset** → upload
+   `upload_cert.pem`, give a reason. ⚠️ The account owner must do this; Google takes a few days.
+5. After approval, update the password-manager item and everyone's `gradle.properties`.
+
+Only one upload key is active per app at a time. Keep the number of key holders small (ideally
+1–2).
 
 ### A4. Set the version (see [Versioning](#versioning))
 For the first upload, `mobile/app.json`:
