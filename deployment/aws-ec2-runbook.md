@@ -868,14 +868,69 @@ Grafana datasource. Until then, logs + uptime already cover the essentials.
 - **Secrets:** rotate the Twilio + WhatsApp tokens that were shared in chat; never commit `.env`.
 - **Zoom cost:** Video SDK is **metered per participant-minute** — watch the Zoom billing dashboard;
   it's your single largest cloud line item (far above the EC2 bill).
-- **Updates / redeploy:**
-  ```bash
-  cd /opt/mole && git pull && pnpm install
-  cd backend && pnpm build && pnpm prisma migrate deploy && pnpm prisma generate
-  cd ../web && pnpm build
-  cd ../admin && pnpm build
-  pm2 restart mole-backend mole-web mole-admin
-  ```
+- **Updates / redeploy:** see [Redeploying an update](#redeploying-an-update) below.
+
+## Redeploying an update
+
+Rebuild and restart **only the apps the release touched**. Check with
+`git diff --stat <deployed-sha> origin/main` before pulling.
+
+### 1. Pull (always)
+```bash
+cd /opt/mole
+git status                              # must be clean — no hand edits on the box
+git rev-parse HEAD > ~/pre-deploy-sha   # for rollback
+git pull origin main
+pnpm install --frozen-lockfile
+```
+`pnpm install` must print the **`dedupe-web-react`** postinstall step (root
+`scripts/dedupe-web-react.mjs`, PR #236). Without it, `next build` fails on `/404`
+with a null `useContext` (hoisted React 18/19 mismatch).
+
+### 2. Backend: only if `backend/` or `shared/` changed
+```bash
+cd /opt/mole/backend
+pnpm prisma generate              # if schema.prisma changed (safe to always run)
+pnpm prisma migrate deploy        # if prisma/migrations/ changed
+pm2 restart mole-backend
+```
+**No `pnpm build`.** The backend runs via **tsx** (`pnpm start:prod`), not compiled
+`dist/`. `@mole/shared` ships raw TS that plain `node` can't resolve.
+
+### 3. Web: only if `web/` or `shared/` changed
+```bash
+cd /opt/mole/web
+pnpm build                        # uses .env.local (NEXT_PUBLIC_API_URL baked in)
+pm2 restart mole-web
+```
+
+### 4. Admin: only if `admin/` or `shared/` changed
+```bash
+cd /opt/mole/admin
+pnpm build
+pm2 restart mole-admin
+```
+
+### 5. Verify
+```bash
+pm2 status                                     # all online, restarts not climbing
+pm2 logs <app> --lines 50                      # no startup errors
+curl -s  https://api.<domain>/health                     # backend → {"status":"ok"}
+curl -sI https://app.<domain>/welcome       | head -1    # web
+```
+
+### Rollback
+```bash
+cd /opt/mole && git checkout $(cat ~/pre-deploy-sha)
+pnpm install --frozen-lockfile
+# rebuild + restart the same apps as above
+git checkout main                              # after the fix lands
+```
+Migrations don't roll back automatically. If a release ran `migrate deploy`,
+check whether the old code works with the new schema before rolling back.
+
+> `mobile/` changes don't deploy here. They ship in a new APK/AAB build, or OTA once
+> configured (see `google-play-release-plan.md` and `mobile-ota-updates.md`).
 
 ## Troubleshooting
 
