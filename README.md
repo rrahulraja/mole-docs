@@ -38,7 +38,7 @@ live under `docs/` and `backend/docs/` in the [main monorepo](https://github.com
 
 ## Mobile
 
-- [Mobile OTA updates](mobile-ota-updates.md)
+- [Mobile OTA updates](mobile-ota-updates.md) — what OTA is, setup (EAS Update + local Gradle builds), release playbook for OTA fixes vs store builds
 
 ## Releases
 
