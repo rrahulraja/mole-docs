@@ -43,6 +43,7 @@ live under `docs/` and `backend/docs/` in the [main monorepo](https://github.com
 ## Releases
 
 - [Android v1.0.0](releases/android-v1.0.0.md) — release notes (draft)
+- [Play Store listing](releases/play-store/listing.md) — name, descriptions, icon, feature graphic, screenshot plan, store settings
 
 ## Test cases
 
