@@ -56,14 +56,21 @@ Questions? Write to moleedtech@gmail.com
 |---|---|---|
 | App icon | 512×512 PNG, ≤1 MB, full-bleed square (Play rounds it) | [`icon-512.png`](icon-512.png) |
 | Feature graphic | 1024×500, JPEG or 24-bit PNG (no alpha) | [`feature-graphic-1024x500.png`](feature-graphic-1024x500.png) |
-| Phone screenshots | 2–8; 9:16 portrait; 1080×1920 recommended (min 320 px, max 3840 px). **≥4 at ≥1080 px** to be eligible for featuring | capture from the app, see below |
-| Tablet screenshots | Optional (7" and 10") | skip for v1.0.0 |
+| Phone screenshots | 2–8; 9:16 portrait; 1080×1920 (min 320 px, max 3840 px). **≥4 at ≥1080 px** to be eligible for featuring | [`screenshots/phone/`](screenshots/phone/) (7, 1080×1920) |
+| 7-inch tablet screenshots | ≥2 (required in our Console) | [`screenshots/tablet-7inch/`](screenshots/tablet-7inch/) (2, 1200×1920) |
+| 10-inch tablet screenshots | ≥2, each side ≥1080 px (required in our Console) | [`screenshots/tablet-10inch/`](screenshots/tablet-10inch/) (2, 1600×2560) |
 | Video | Optional YouTube URL | skip |
 
 Icon + feature graphic are generated from the logo package (`mole_app_icon.svg`,
 `mole_logo_reversed.svg`); source SVGs live in the monorepo at `mobile/assets/brand/`.
 
-### Screenshots to capture (in this order)
+### Screenshots
+Captured 2026-10-05 from the release build on Android 15 emulators, against local demo data
+(fake Indian names; student **Aarav Sharma**, educator **Ananya Iyer**). Upload order:
+`01-welcome`, `02-home`, `03-search`, `04-profile`, `05-booking`, `06-educator-dashboard`, `07-quiz`.
+Live-session screenshot to be added later.
+
+#### Original capture plan
 Use test accounts with realistic but **fake** names. No real student data, phone numbers or faces
 of minors.
 
